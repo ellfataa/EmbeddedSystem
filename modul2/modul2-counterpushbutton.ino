@@ -28,7 +28,7 @@ void setup() {
   displayDigit(buttonPushCounter);
 }
 
-// Perulangan
+// Fungsi perulangan
 void loop() {
    buttonState = digitalRead(buttonPin);
   if (buttonState != lastButtonState) {
@@ -51,7 +51,7 @@ void loop() {
   }
 }
 
-// Menyalakan tampilan
+// Menyalakan digital display
 void displayDigit(int digit)
 {
  //kondisi ketika segment a
@@ -84,7 +84,7 @@ void displayDigit(int digit)
 
 }
 
-// Mematikan Tampilan
+// Mematikan digital display
 void turnOff()
 {
   digitalWrite(a,LOW);
