@@ -1,8 +1,10 @@
 #include <Arduino.h>
-// Inisiasi
+
+// Mapping pin segment pada digital display
 const int segmentPins[8] = {7, 6, 5, 11, 10, 8, 9, 4};
 // a b c d e f g dp
 
+// Memunculkan segment dari 0-F
 // urutan segmen: a b c d e f g dp
 byte digitPattern[16][8] = {
   {1,1,1,1,1,1,0,0}, // 0
@@ -28,10 +30,11 @@ void displayDigit(int num)
 {
   for(int i=0; i<8; i++)
   {
-    digitalWrite(segmentPins[i], digitPattern[num][i]);
+    digitalWrite(segmentPins[i], !digitPattern[num][i]); // Pake tanda ! karena anoda
   }
 }
 
+// Fungsi setup
 void setup()
 {
   for(int i=0; i<8; i++)
@@ -40,10 +43,10 @@ void setup()
   }
 }
 
-// Fungsi mematikan digit
+// Fungsi perulangan
 void loop()
 {
-  for(int i=0; i<16; i++)   //0 sampai F
+  for(int i=0; i<16; i++)   // 0 sampai F
   {
     displayDigit(i);
     delay(1000);
