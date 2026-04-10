@@ -1,97 +1,72 @@
-//Inisiasi program
-const int a = 8;  //menampilkan segment "a"
-const int b = 9;  //menampilkan segment "b"
-const int c = 4;  //menampilkan segment "c"
-const int d = 5;  //menampilkan segment "d"
-const int e = 6;  //menampilkan segment "e"
-const int f = 2;  //menampilkan segment "f"
-const int g = 3;  //menampilkan segment "g"
+#include <Arduino.h>
 
-bool bPress = false;
-const int buttonPin = 10;
+// ============================== PIN ==============================
+const int segmentPins[8] = {7, 6, 5, 11, 10, 8, 9, 4};
+// a b c d e f g dp
 
-int buttonPushCounter = 0; //menyimpan angka atau nomor ketika ditekan
-int buttonState = 0;       //memproses status sekarang pada tombol
-int lastButtonState = 0;   //memproses status sebelumnya pada tombol
+const int btnUp = 3;
 
-void setup() {
-  pinMode(a, OUTPUT);  //A
-  pinMode(b, OUTPUT);  //B
-  pinMode(c, OUTPUT);  //C
-  pinMode(d, OUTPUT);  //D
-  pinMode(e, OUTPUT);  //E
-  pinMode(f, OUTPUT);  //F
-  pinMode(g, OUTPUT);  //G
+// ============================== DATA ==============================
+// CC: 1 = ON, 0 = OFF
+byte digitPattern[16][8] = {
+  {1,1,1,1,1,1,0,0}, //0
+  {0,1,1,0,0,0,0,0}, //1
+  {1,1,0,1,1,0,1,0}, //2
+  {1,1,1,1,0,0,1,0}, //3
+  {0,1,1,0,0,1,1,0}, //4
+  {1,0,1,1,0,1,1,0}, //5
+  {1,0,1,1,1,1,1,0}, //6
+  {1,1,1,0,0,0,0,0}, //7
+  {1,1,1,1,1,1,1,0}, //8
+  {1,1,1,1,0,1,1,0}, //9
+  {1,1,1,0,1,1,1,0}, //A
+  {0,0,1,1,1,1,1,0}, //b
+  {1,0,0,1,1,1,0,0}, //C
+  {0,1,1,1,1,0,1,0}, //d
+  {1,0,0,1,1,1,1,0}, //E
+  {1,0,0,0,1,1,1,0}  //F
+};
 
-  pinMode( buttonPin , INPUT_PULLUP );
-  Serial.begin(9600);
-  displayDigit(buttonPushCounter);
-}
+int currentDigit = 0;
 
-// Fungsi perulangan
-void loop() {
-   buttonState = digitalRead(buttonPin);
-  if (buttonState != lastButtonState) {
-    if (buttonState == LOW) {
-      bPress = true;
-      buttonPushCounter++;
-      if( buttonPushCounter > 9) buttonPushCounter =0 ;
-      Serial.println("on");
-    
-    } else {
-      Serial.println("off");
-    }
-    delay(50);
-  }
-  lastButtonState = buttonState;
+// state sebelumnya (untuk edge detection)
+bool lastUpState = HIGH;
 
-  if( bPress ){
-     turnOff();
-     displayDigit(buttonPushCounter);
+// ============================== FUNCTION ==============================
+void displayDigit(int num)
+{
+  for(int i=0; i<8; i++)
+  {
+    digitalWrite(segmentPins[i], !digitPattern[num][i]);
   }
 }
 
-// Menyalakan digital display
-void displayDigit(int digit)
+// ============================== SETUP ==============================
+void setup()
 {
- //kondisi ketika segment a
- if(digit!=1 && digit != 4)
- digitalWrite(a,HIGH);
+  for(int i=0; i<8; i++)
+  {
+    pinMode(segmentPins[i], OUTPUT);
+  }
 
- //kondisi ketika segment b
- if(digit != 5 && digit != 6)
- digitalWrite(b,HIGH);
+  pinMode(btnUp, INPUT_PULLUP);
 
- //kondisi ketika segment c
- if(digit !=2)
- digitalWrite(c,HIGH);
-
- //kondisi ketika segment d
- if(digit != 1 && digit !=4 && digit !=7)
- digitalWrite(d,HIGH);
-
- //kondisi ketika segment e
- if(digit == 2 || digit ==6 || digit == 8 || digit==0)
- digitalWrite(e,HIGH);
-
- //kondisi ketika segment f
- if(digit != 1 && digit !=2 && digit!=3 && digit !=7)
- digitalWrite(f,HIGH);
-
- //kondisi ketika segment g
- if (digit!=0 && digit!=1 && digit !=7)
- digitalWrite(g,HIGH);
-
+  displayDigit(currentDigit);
 }
 
-// Mematikan digital display
-void turnOff()
+// ============================== LOOP ==============================
+void loop()
 {
-  digitalWrite(a,LOW);
-  digitalWrite(b,LOW);
-  digitalWrite(c,LOW);
-  digitalWrite(d,LOW);
-  digitalWrite(e,LOW);
-  digitalWrite(f,LOW);
-  digitalWrite(g,LOW);
+  bool upState = digitalRead(btnUp);
+
+  // ========== UP (maju) ==========
+  if(lastUpState == HIGH && upState == LOW)
+  {
+    delay(300);
+    currentDigit++;
+    if(currentDigit > 15) currentDigit = 0;
+    displayDigit(currentDigit);
+  }
+
+  lastUpState = upState;
 }
